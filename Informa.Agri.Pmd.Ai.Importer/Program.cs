@@ -162,8 +162,8 @@ namespace Informa.Agri.Pmd.Ai.Importer
                 switch (counter)
                 {
                     case 0:
-                        ai.Title = child.InnerText.Trim();
-                        ai.Tags.Add(child.InnerText.Trim());
+                        ai.Title = child.ParentNode.InnerText.Replace("&#xa0;", " ").Trim();
+                        ai.Tags.Add(ai.Title);
                         Inform(ai.Title);
                         break;
                     case 3:
@@ -171,22 +171,22 @@ namespace Informa.Agri.Pmd.Ai.Importer
                             child.InnerText.IndexOf(")", StringComparison.Ordinal) - child.InnerText.IndexOf("(", StringComparison.Ordinal) - 1).Trim();
                         break;
                     case 5:
-                        ai.ProductType = child.InnerText;
+                        ai.ProductType = child.InnerText.Replace("&#xa0;", " ");
                         break;
                     case 6:
-                        ai.Class = child.InnerText;
+                        ai.Class = child.InnerText.Replace("&#xa0;", " ");
                         break;
                     case 7:
-                        ai.SalesAmount = child.InnerText;
+                        ai.SalesAmount = child.InnerText.Replace("&#xa0;", " ");
                         break;
                     case 8:
-                        ai.LaunchDate = child.InnerText;
+                        ai.LaunchDate = child.InnerText.Replace("&#xa0;", " ");
                         break;
                     case 12:
-                        ai.KeyManufacturerBrand = child.InnerText;
+                        ai.KeyManufacturerBrand = child.InnerText.Replace("&#xa0;", " ");
                         break;
                     case 13:
-                        ai.OtherManufacturer = child.InnerText;
+                        ai.OtherManufacturer = child.InnerText.Replace("&#xa0;", " ");
                         break;
                     case 11:
                         var img = child.ParentNode.SelectSingleNode("p/img");
@@ -209,13 +209,13 @@ namespace Informa.Agri.Pmd.Ai.Importer
 
                         break;
                     case 15:
-                        ai.Timing = child.ParentNode.SelectNodes("p/span").Count == 2 ? child.ParentNode.InnerText.Replace("Timing:", "").Trim() : child.ParentNode.NextSibling.InnerText.Trim();
+                        ai.Timing = child.ParentNode.SelectNodes("p/span").Count == 2 ? child.ParentNode.InnerText.Replace("Timing:", "").Replace("&#xa0;", " ").Trim() : child.ParentNode.NextSibling.InnerText.Replace("&#xa0;", " ").Trim();
                         break;
                     default:
    //                     ai.MainCrops.Add(child.InnerText);
                         if (child.InnerText.Contains("Main Mixture Partners"))
                         {
-                            ai.MainMixturePartners = $"{child.InnerText} ".Substring(23).Trim();
+                            ai.MainMixturePartners = $"{child.InnerText} ".Substring(23).Replace("&#xa0;", " ").Trim();
                         }
                         else if (child.InnerText.Contains("Recent History:"))
                         {
@@ -224,15 +224,15 @@ namespace Informa.Agri.Pmd.Ai.Importer
                             {
                                 if (!paragraph.InnerText.StartsWith("Recent History"))
                                 {
-                                    ai.RecentHistory += paragraph.InnerText + "\n\n";
+                                    ai.RecentHistory += paragraph.InnerText.Replace("&#xa0;", " ") + "\n\n";
                                 }
                             }
                         }
                         else if (child.ParentNode.InnerText.Trim().StartsWith("Rate "))
                         {
-                            ai.RateAmount = child.InnerText.Substring(child.InnerText.IndexOf(":", StringComparison.Ordinal)+1).Trim();
+                            ai.RateAmount = child.InnerText.Substring(child.InnerText.IndexOf(":", StringComparison.Ordinal)+1).Replace("&#xa0;", " ").Trim();
                             ai.RateUnit = child.InnerText.Substring(child.InnerText.IndexOf("(", StringComparison.Ordinal)+1,
-                                child.InnerText.IndexOf(")", StringComparison.Ordinal) - child.InnerText.IndexOf("(", StringComparison.Ordinal)-1).Trim();
+                                child.InnerText.IndexOf(")", StringComparison.Ordinal) - child.InnerText.IndexOf("(", StringComparison.Ordinal)-1).Replace("&#xa0;", " ").Trim();
                         }
                         else if (child.InnerText.Trim() == "Main Crops")
                         {
@@ -247,11 +247,11 @@ namespace Informa.Agri.Pmd.Ai.Importer
                                 {
                                     if (index == 0)
                                     {
-                                        ai.MainCrops.Add(n.InnerText);
+                                        ai.MainCrops.Add(n.InnerText.Replace("&#xa0;", " "));
                                     }
                                     else
                                     {
-                                        ai.MainPests.Add(n.InnerText);
+                                        ai.MainPests.Add(n.InnerText.Replace("&#xa0;", " "));
                                     }
                                     index++;
                                 }
