@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<License>
+    <Data>
+        <LicensedTo>Informa</LicensedTo>
+        <EmailTo>andy.winter@informa.com</EmailTo>
+        <LicenseType>Developer OEM</LicenseType>
+        <LicenseNote>Limited to 1 developer, unlimited physical locations</LicenseNote>
+        <OrderID>170623073230</OrderID>
+        <UserID>370419</UserID>
+        <OEM>This is a redistributable license</OEM>
+        <Products>
+            <Product>Aspose.Total for .NET</Product>
+        </Products>
+        <EditionType>Enterprise</EditionType>
+        <SerialNumber>d9ebe0b3-ee07-4fb3-b0e2-276a13615b28</SerialNumber>
+        <SubscriptionExpiry>20180718</SubscriptionExpiry>
+        <LicenseVersion>3.0</LicenseVersion>
+        <LicenseInstructions>http://www.aspose.com/corporate/purchase/license-instructions.aspx</LicenseInstructions>
+    </Data>
+    <Signature>INQDIGUm7YC6nTGuyq1lky9t7+UhvDpegSO+ha8lTAuoiPYzAHu+staz8J4NlwU9vateFh/sXkQsKfjNeNbyoYdTbrpnlKhr2/1HPGJz1iIlcQLMG9H7YhTSlZaOgOMf5SF5u91WneQbU/LWk1fNldvTUNUcof8tj0a1QqNIsZs=</Signature>
+</License>
