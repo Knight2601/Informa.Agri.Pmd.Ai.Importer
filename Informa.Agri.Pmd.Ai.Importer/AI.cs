@@ -3,35 +3,54 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Nest;
 using Newtonsoft.Json;
 
 namespace Informa.Agri.Pmd.Ai.Importer
 {
+    [ElasticsearchType(Name = "ai")]
     public class Ai
     {
-        public string Id;
-        public string Title;
-        public List<string> Tags;
-        public string ProductType;
-        public string Class;
-        public string SalesAmount;
-        public string SalesUnit;
-        public string LaunchDate;
-        public string KeyManufacturerBrand;
-        public string OtherManufacturer;
+        [Keyword]
+        public string Id { get; set; }
+        [Keyword]
+        public string Title { get; set; }
+        public List<string> Tags { get; set; }
+        [Keyword]
+        public string ProductType { get; set; }
+        [Keyword]
+        public string Class { get; set; }
+        [Text]
+        public string SalesAmount { get; set; }
+        [Text]
+        public string SalesUnit { get; set; }
+        [Keyword]
+        public string LaunchDate { get; set; }
+        [Keyword]
+        public string KeyManufacturerBrand { get; set; }
+        [Keyword]
+        public string OtherManufacturer { get; set; }
+        [Text(Ignore = true)]
         [JsonIgnore]
-        public string StructureImageLink;
-        public byte[] StructureImage;
-        //public string Application;
-        public string Timing;
-        public string RateAmount;
-        public string RateUnit;
-        public List<string> MainCrops;
-        public List<string> MainPests;
-        public string MainMixturePartners;
-        public string RecentHistory;
-        public DateTime CreationDate;
-        public DateTime LastUpdatedDate;
+        public string StructureImageLink { get; set; }
+        [Text]
+        public byte[] StructureImage { get; set; }
+        [Text]
+        public string Timing { get; set; }
+        [Text]
+        public string RateAmount { get; set; }
+        [Text]
+        public string RateUnit { get; set; }
+        public List<string> MainCrops { get; set; }
+        public List<string> MainPests { get; set; }
+        [Keyword]
+        public string MainMixturePartners { get; set; }
+        [Keyword]
+        public string RecentHistory { get; set; }
+        [Date]
+        public DateTime CreationDate { get; set; }
+        [Date]
+        public DateTime LastUpdatedDate { get; set; }
 
         public Ai()
         {

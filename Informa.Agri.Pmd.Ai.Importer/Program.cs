@@ -95,11 +95,37 @@ namespace Informa.Agri.Pmd.Ai.Importer
 
             File.WriteAllText("output.json", readyToGoDocs);
 
-            Console.WriteLine($"output.json written.");
+            Log.Information($"output.json written.");
 
-            var result = BulkUpload(listOf);
+            if (DeleteThenCreateIndex())
+            {
+                Log.Information($"Deleted / Created index.");
+
+                System.Threading.Thread.Sleep(1000); //cool off
+
+                var result = BulkUpload(listOf);
+
+                Log.Information($"Finished.");
+
+            }
+
         }
 
+        private static bool DeleteThenCreateIndex()
+        {
+
+            var deleteResult = _client.DeleteIndex("pmcd-ai-index");
+
+            if (deleteResult.Acknowledged)
+            {
+                var ci = _client.CreateIndex("pmcd-ai-index",
+                    d => d.Mappings(m => m.Map<Importer.Ai>(mp => mp.AutoMap())));
+
+                return ci.Acknowledged;
+            }
+
+            return false;
+        }
         private static bool BulkUpload(List<Ai> readyToGoDocs)
         {
 
@@ -109,7 +135,7 @@ namespace Informa.Agri.Pmd.Ai.Importer
                 .BackOffTime("20s")
                 .RefreshOnCompleted(true)
                 .MaxDegreeOfParallelism(6)
-                .Size(1000)))
+                .Size(100)))
             {
                 var waitHandle = new CountdownEvent(1);
 
