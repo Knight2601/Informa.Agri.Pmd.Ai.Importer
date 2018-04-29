@@ -119,7 +119,8 @@ namespace Informa.Agri.Pmd.Ai.Importer
             if (deleteResult.Acknowledged)
             {
                 var ci = _client.CreateIndex("pmcd-ai-index",
-                    d => d.Mappings(m => m.Map<Importer.Ai>(mp => mp.AutoMap())));
+                    d => d.Mappings(m => m.Map<Importer.Ai>(mp => mp.AutoMap()))
+                    .Aliases(a=>a.Alias("pmcd-ai-alias")));
 
                 return ci.Acknowledged;
             }
