@@ -52,6 +52,8 @@ namespace Informa.Agri.Pmd.Ai.Importer
         [Date]
         public DateTime LastUpdatedDate { get; set; }
 
+        public bool InProduction { get; set; }
+
         public Ai()
         {
             MainCrops = new List<string>();

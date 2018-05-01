@@ -41,13 +41,19 @@ namespace Informa.Agri.Pmd.Ai.Importer
             var license = new License();
             license.SetLicense(".\\Aspose.Total.lic");
 
-            var b = DoWork("A-Z.docx");
+            var output = new List<Ai>();
+                
+            output.AddRange(DoWork("A-Z.docx", true));
+
+            output.AddRange(DoWork("R&D.docx", false));
+
+            WriteToEs(output);
 
             Console.WriteLine("Any key to exit...");
             Console.ReadLine();
         }
 
-        private static bool DoWork(string file)
+        private static List<Ai> DoWork(string file, bool inProduction)
         {
             Log.Information($"Reading {file}");
 
@@ -57,28 +63,25 @@ namespace Informa.Agri.Pmd.Ai.Importer
 
             var htmlXPathDocument = ReadIn(ProcessDocumentToHtml(d));
 
-            ProcessXDocument(htmlXPathDocument);
-
-            return true;
+            return ProcessXDocument(htmlXPathDocument, inProduction);
         }
 
-        private static void ProcessXDocument(HtmlDocument doc)
+        private static List<Ai> ProcessXDocument(HtmlDocument doc, bool inProduction)
         {
             var listOf = new List<Ai>();
             var nodes = doc.DocumentNode.Descendants("table")
                 .Select(y => y.Descendants()
                     .Where(x => x.Name == "tr"))
                 .ToList();
-            var idxPrefix = "AI-";
+            var idxPrefix = "AI-" + (inProduction ? "P" : "R") + "-";
             var idx = 0;
             foreach (var node in nodes) // table's
             {
-                var thisAi = new Ai();
+                var thisAi = new Ai {InProduction = inProduction};
                 var counter = 0;
                 thisAi.Id = $"{idxPrefix}{idx}";
                 foreach (var child in node.Select(x => x.Descendants().Where(xx => xx.Name == "td")).ToList()) // td's
                 {
-
                     foreach (var c in child)
                     {
                         ProcessTd(c, ref thisAi, ref counter);
@@ -89,14 +92,17 @@ namespace Informa.Agri.Pmd.Ai.Importer
                 idx++;
             }
 
-//            WriteOut(listOf);
-
             var readyToGoDocs = JsonConvert.SerializeObject(listOf);
 
-            File.WriteAllText("output.json", readyToGoDocs);
+            File.WriteAllText($"output-{inProduction}.json", readyToGoDocs);
 
-            Log.Information($"output.json written.");
+            Log.Information($"output-{inProduction}.json written.");
 
+            return listOf;
+        }
+
+        private static void WriteToEs(List<Ai> listOf)
+        {
             if (DeleteThenCreateIndex())
             {
                 Log.Information($"Deleted / Created index.");
@@ -108,7 +114,6 @@ namespace Informa.Agri.Pmd.Ai.Importer
                 Log.Information($"Finished.");
 
             }
-
         }
 
         private static bool DeleteThenCreateIndex()
@@ -116,16 +121,14 @@ namespace Informa.Agri.Pmd.Ai.Importer
 
             var deleteResult = _client.DeleteIndex("pmcd-ai-index");
 
-            if (deleteResult.Acknowledged)
-            {
-                var ci = _client.CreateIndex("pmcd-ai-index",
-                    d => d.Mappings(m => m.Map<Importer.Ai>(mp => mp.AutoMap()))
+            if (!deleteResult.Acknowledged) return false;
+
+            var ci = _client.CreateIndex("pmcd-ai-index",
+                d => d.Mappings(m => m.Map<Importer.Ai>(mp => mp.AutoMap()))
                     .Aliases(a=>a.Alias("pmcd-ai-alias")));
 
-                return ci.Acknowledged;
-            }
+            return ci.Acknowledged;
 
-            return false;
         }
         private static bool BulkUpload(List<Ai> readyToGoDocs)
         {
@@ -142,7 +145,7 @@ namespace Informa.Agri.Pmd.Ai.Importer
 
                 bulkAll.Subscribe(new BulkAllObserver(
                     onNext: (b) => { Console.Write("x"); },
-                    onError: (e) => { throw e; },
+                    onError: (e) => throw e,
                     onCompleted: () => waitHandle.Signal()
                 ));
 
@@ -154,7 +157,7 @@ namespace Informa.Agri.Pmd.Ai.Importer
             return true;
         }
 
-        private static void WriteOut(List<Ai> listOf)
+        private static void WriteOut(IEnumerable<Ai> listOf)
         {
             foreach (var ai in listOf)
             {
@@ -274,11 +277,11 @@ namespace Informa.Agri.Pmd.Ai.Importer
                                 {
                                     if (index == 0)
                                     {
-                                        ai.MainCrops.Add(n.InnerText.Replace("&#xa0;", " "));
+                                        ai.MainCrops.AddRange(n.InnerText.Replace("&#xa0;", " ").Split(',').Select(s => s.Trim()));
                                     }
                                     else
                                     {
-                                        ai.MainPests.Add(n.InnerText.Replace("&#xa0;", " "));
+                                        ai.MainPests.AddRange(n.InnerText.Replace("&#xa0;", " ").Split(',').Select(s => s.Trim()));
                                     }
                                     index++;
                                 }
